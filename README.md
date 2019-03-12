@@ -27,4 +27,6 @@ Would like to make this happen, but with Microsoft Azure eco-system
 * a tool to manage a list of microservices from before they even exist (planning/documentation), thru development, into production, monitoring... all the way to end-of-life
 * can this help 
 
-
+### References:
+* Azure DevOps REST API: https://docs.microsoft.com/en-us/rest/api/azure/devops/?view=azure-devops-rest-5.0
+* 
