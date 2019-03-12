@@ -29,4 +29,4 @@ Would like to make this happen, but with Microsoft Azure eco-system
 
 ### References:
 * Azure DevOps REST API: https://docs.microsoft.com/en-us/rest/api/azure/devops/?view=azure-devops-rest-5.0
-* 
+* How to create Custom Template with `dotnet new` https://docs.microsoft.com/en-us/dotnet/core/tutorials/create-custom-template
