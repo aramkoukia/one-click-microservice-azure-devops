@@ -24,3 +24,7 @@ Would like to make this happen, but with Microsoft Azure eco-system
 * a centralized API documentation like Swagger, so the API signature can be linted! (as if one person is writing all the APIs) checking for standards and conventions
 * then some engine to build Mock APIs based on the specification and the template (C# Core, F# Core, node) of choice
 * then all the above steps to make the pipelines etc...
+* a tool to manage a list of microservices from before they even exist (planning/documentation), thru development, into production, monitoring... all the way to end-of-life
+* can this help 
+
+
