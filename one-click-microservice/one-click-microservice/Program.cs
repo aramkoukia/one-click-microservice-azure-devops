@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -8,22 +9,29 @@ namespace one_click_microservice
 {
     class Program
     {
-        //============= Config [Edit these with your settings] =====================
-        //change to the URL of your Azure DevOps account; NOTE: This must use HTTPS
-        internal const string azureDevOpsOrganizationUrl = "http://dev.azure.com/organization";
-
-        //change to your app registration's Application ID, unless you are an MSA backed account
-        internal const string clientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
-
-        //change to your app registration's reply URI, unless you are an MSA backed account
-        internal const string replyUri = "urn:ietf:wg:oauth:2.0:oob";
-        //==========================================================================
-
         //Constant value to target Azure DevOps. DO NOT CHANGE
         internal const string azureDevOpsResourceId = "499b84ac-1321-427f-aa17-267ca6975798";
+        internal static string azureDevOpsOrganizationUrl;
+        internal static string clientId;
+        internal static string replyUri;
 
         static void Main(string[] args)
         {
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", true, true)
+                .Build();
+
+            //============= Config [Edit these with your settings] =====================
+            //change to the URL of your Azure DevOps account; NOTE: This must use HTTPS
+            azureDevOpsOrganizationUrl = "http://dev.azure.com/organization"; // config["azureDevOpsOrganizationUrl"];
+
+            //change to your app registration's Application ID, unless you are an MSA backed account
+            clientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";  // config["clientId"];
+
+            //change to your app registration's reply URI, unless you are an MSA backed account
+            replyUri = "urn:ietf:wg:oauth:2.0:oob"; // config["replyUri"]; 
+            //==========================================================================
+
             AuthenticateWithAzureDevOps();
 
             CollectServiceInformation();
