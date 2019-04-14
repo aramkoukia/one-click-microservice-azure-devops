@@ -6,4 +6,9 @@
     <RootNamespace>one_click_microservice</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="4.5.1" />
+    <PackageReference Include="Microsoft.TeamFoundationServer.ExtendedClient" Version="15.131.1" />
+  </ItemGroup>
+
 </Project>
