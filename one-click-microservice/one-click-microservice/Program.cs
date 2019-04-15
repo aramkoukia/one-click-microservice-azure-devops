@@ -103,6 +103,32 @@ namespace one_click_microservice
         private static void CreateAzureDevOpsProject()
         {
             Console.WriteLine("Create Azure DevOps Project");
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                        Convert.ToBase64String(
+                            System.Text.Encoding.ASCII.GetBytes(
+                                string.Format("{0}:{1}", "", personalAccessToken))));
+
+                    // todo: fix the rest api
+                    using (HttpResponseMessage response = client.GetAsync(
+                                "https://dev.azure.com/{organization}/{project}/_apis/build/builds?api-version=5.0").Result)
+                    {
+                        response.EnsureSuccessStatusCode();
+                        string responseBody = response.Content.ReadAsStringAsync().Result;
+                        Console.WriteLine(responseBody);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         private static void CreateAzureDevOpsRepository()
