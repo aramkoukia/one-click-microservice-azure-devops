@@ -1,19 +1,38 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
+using Microsoft.VisualStudio.Services.Client;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.WebApi;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace one_click_microservice
 {
     class Program
     {
         //Constant value to target Azure DevOps. DO NOT CHANGE
+        
+        ////============= Config [Edit these with your settings] =====================
         internal const string azureDevOpsResourceId = "499b84ac-1321-427f-aa17-267ca6975798";
-        internal static string azureDevOpsOrganizationUrl;
-        internal static string clientId;
-        internal static string replyUri;
+        
+        ////change to the URL of your Azure DevOps account; NOTE: This must use HTTPS
+        internal static string azureDevOpsOrganizationUrl = "http://dev.azure.com/aramkoukia"; // config["azureDevOpsOrganizationUrl"];
+
+        ////change to your app registration's Application ID, unless you are an MSA backed account
+        internal static string clientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";  // config["clientId"];
+
+        ////change to your app registration's reply URI, unless you are an MSA backed account
+        internal static string replyUri = "urn:ietf:wg:oauth:2.0:oob"; // config["replyUri"]; 
+        
+        ////==========================================================================
+
+        internal static string personalAccessToken = "put personal access token here";
 
         static void Main(string[] args)
         {
@@ -21,16 +40,8 @@ namespace one_click_microservice
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
 
-            //============= Config [Edit these with your settings] =====================
-            //change to the URL of your Azure DevOps account; NOTE: This must use HTTPS
-            azureDevOpsOrganizationUrl = "http://dev.azure.com/organization"; // config["azureDevOpsOrganizationUrl"];
-
-            //change to your app registration's Application ID, unless you are an MSA backed account
-            clientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";  // config["clientId"];
-
-            //change to your app registration's reply URI, unless you are an MSA backed account
-            replyUri = "urn:ietf:wg:oauth:2.0:oob"; // config["replyUri"]; 
-            //==========================================================================
+            // Create a connection
+            //VssConnection connection = new VssConnection(orgUrl, new VssBasicCredential(string.Empty, personalAccessToken));
 
             AuthenticateWithAzureDevOps();
 
@@ -97,6 +108,24 @@ namespace one_click_microservice
         private static void CreateAzureDevOpsRepository()
         {
             Console.WriteLine("Create Azure DevOps Repository");
+
+            // Interactively ask the user for credentials, caching them so the user isn't constantly prompted
+            VssCredentials creds = new VssClientCredentials
+            {
+                Storage = new VssClientCredentialStorage()
+            };
+
+            VssConnection connection = new VssConnection(new Uri(azureDevOpsOrganizationUrl), new VssBasicCredential(string.Empty, personalAccessToken));
+
+            // Connect to Azure DevOps Services
+            // VssConnection connection = new VssConnection(new Uri(c_collectionUri), creds);
+
+            // Get a GitHttpClient to talk to the Git endpoints
+            GitHttpClient gitClient = connection.GetClient<GitHttpClient>();
+            // gitClient.CreateRepositoryAsync();
+
+            // Get data about a specific repository
+            //var repo = gitClient.GetRepositoryAsync(c_projectName, c_repoName).Result;
         }
 
         private static void CreateMicroserviceServiceTemplate()
@@ -167,6 +196,32 @@ namespace one_click_microservice
                 else
                 {
                     Console.WriteLine("{0}:{1}", response.StatusCode, response.ReasonPhrase);
+                }
+            }
+        }
+
+        static private async Task ShowWorkItemDetails(VssConnection connection, int workItemId)
+        {
+            // Get an instance of the work item tracking client
+            WorkItemTrackingHttpClient witClient = connection.GetClient<WorkItemTrackingHttpClient>();
+
+            try
+            {
+                // Get the specified work item
+                WorkItem workitem = await witClient.GetWorkItemAsync(workItemId);
+
+                // Output the work item's field values
+                foreach (var field in workitem.Fields)
+                {
+                    Console.WriteLine("  {0}: {1}", field.Key, field.Value);
+                }
+            }
+            catch (AggregateException aex)
+            {
+                VssServiceException vssex = aex.InnerException as VssServiceException;
+                if (vssex != null)
+                {
+                    Console.WriteLine(vssex.Message);
                 }
             }
         }
